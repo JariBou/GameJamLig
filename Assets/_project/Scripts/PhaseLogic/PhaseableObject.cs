@@ -15,6 +15,8 @@ namespace _project.Scripts.PhaseLogic
             if (_phaseManager == null) throw new Exception("PhaseManager is null");
             _phaseManager.RegisterObject(this);
             
+            IsPhased = true;
+            
             Awake_Impl();
         }
         

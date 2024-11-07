@@ -1,19 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using _project.Scripts.EnvironmentLogic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace _project.Scripts.PlayerBundle
 {
     [RequireComponent(typeof(Rigidbody2D))]
     public class PlayerMovement : MonoBehaviour
     {
-        [SerializeField] private float _maxHorizontalSpeed = 7f;
-        [SerializeField] private float _horizontalSpeed = 3f;
+        [SerializeField] private float _maxHorizontalSpeed = 25f;
+        [FormerlySerializedAs("_horizontalSpeed")] [SerializeField] private float _horizontalAcceleration = 30f;
         [SerializeField] private float _jumpSpeed = 10f;
-        [SerializeField] private float _linearDrag = 6f;
+        [SerializeField] private float _linearDrag = .05f;
         [SerializeField] private float _gravityStrength = 9.81f;
-        
+
         [SerializeField] private BoxCollider2D _feetCollider;
+        
+        // If set to false this fuck up when detection happens when jumping so might go to a OnTriggerOverlap thing on a separate script maybe
+        [SerializeField] private bool _fallingRemovesJump = true; 
         
         private Rigidbody2D _rb;
         private bool _isGrounded;
@@ -31,7 +36,7 @@ namespace _project.Scripts.PlayerBundle
 
         private void CheckGround()
         {
-            Collider2D[] results = new Collider2D[1];
+            List<Collider2D> results = new List<Collider2D>();
             _feetCollider.OverlapCollider(new ContactFilter2D().NoFilter(), results);
 
             foreach (Collider2D col in results)
@@ -42,26 +47,27 @@ namespace _project.Scripts.PlayerBundle
                     return;
                 }
             }
-
+            
+            if (_fallingRemovesJump) _isGrounded = false;
         }
 
         private void FixedUpdate()
         {
             CheckGround();
             Vector2 snapshotSpeed = _rb.velocity;
-            snapshotSpeed.x = (Math.Abs(snapshotSpeed.x) - _linearDrag * Time.fixedDeltaTime) * Math.Sign(snapshotSpeed.x);
+            snapshotSpeed.x = Math.Abs(snapshotSpeed.x) * (1 - _linearDrag) * Math.Sign(snapshotSpeed.x);
             if (!_isGrounded) snapshotSpeed.y -= _gravityStrength * Time.fixedDeltaTime;
 
             if (_inputVec.x > 0)
             {
                 if (snapshotSpeed.x > _maxHorizontalSpeed) return;
                 
-                snapshotSpeed.x += _horizontalSpeed * _inputVec.x * Time.fixedDeltaTime;
+                snapshotSpeed.x += _horizontalAcceleration * _inputVec.x * Time.fixedDeltaTime;
             } else if (_inputVec.x < 0)
             {
                 if (snapshotSpeed.x < -_maxHorizontalSpeed) return;
                 
-                snapshotSpeed.x += _horizontalSpeed * _inputVec.x * Time.fixedDeltaTime;
+                snapshotSpeed.x += _horizontalAcceleration * _inputVec.x * Time.fixedDeltaTime;
             }
             
             snapshotSpeed.x = Mathf.Clamp(snapshotSpeed.x, -_maxHorizontalSpeed, _maxHorizontalSpeed);
@@ -79,7 +85,9 @@ namespace _project.Scripts.PlayerBundle
         {
             if (!_isGrounded) return;
             _isGrounded = false;
-            _rb.AddForce(Vector2.up * _jumpSpeed, ForceMode2D.Impulse);
+            Vector2 vector2 = _rb.velocity;
+            vector2.y = _jumpSpeed;
+            _rb.velocity = vector2;
         }
     }
 }

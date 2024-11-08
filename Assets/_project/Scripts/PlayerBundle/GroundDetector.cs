@@ -8,21 +8,26 @@ namespace _project.Scripts.PlayerBundle
     public class GroundDetector : MonoBehaviour
     {
 
-        private List<GameObject> _stableGrounds = new();
+        private int _groundTouchingCount = 0;
 
         public bool IsOnGround()
         {
-            return _stableGrounds.Count > 0;
+            return _groundTouchingCount > 0;
+        }
+
+        public void ResetGroundTouching()
+        {
+            _groundTouchingCount = 0;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (other.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.StableGround) ?? false) _stableGrounds.Add(other.gameObject);
+            if (other.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.StableGround) ?? false) _groundTouchingCount++;
         }
 
         private void OnTriggerExit2D(Collider2D other)
         {
-            if (other.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.StableGround) ?? false) _stableGrounds.Remove(other.gameObject);
+            if (other.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.StableGround) ?? false) _groundTouchingCount--;
         }
     }
 }

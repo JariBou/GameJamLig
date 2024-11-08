@@ -25,6 +25,7 @@ namespace _project.Scripts.PlayerBundle
         private Rigidbody2D _rb;
         private bool _isGrounded;
         private bool _isOnLadder;
+        private bool _canMove = true;
         private Vector2 _inputVec;
         private bool _collidesWithLadder;
 
@@ -42,27 +43,24 @@ namespace _project.Scripts.PlayerBundle
         {
             _isGrounded = _groundDetector.IsOnGround();
             Vector2 snapshotSpeed = _rb.velocity;
-            snapshotSpeed.x = Math.Abs(snapshotSpeed.x) * (1 - _linearDrag) * Math.Sign(snapshotSpeed.x);
-            
+            if (_isOnLadder)
+            {
+                snapshotSpeed.x = Math.Abs(snapshotSpeed.x) * (1 - _linearDrag)*3/4 * Math.Sign(snapshotSpeed.x);
+            } else
+            {
+                snapshotSpeed.x = Math.Abs(snapshotSpeed.x) * (1 - _linearDrag) * Math.Sign(snapshotSpeed.x);
+            }
             
             LadderCheck(ref snapshotSpeed);
             if (!_isGrounded && !_isOnLadder) snapshotSpeed.y -= _gravityStrength * Time.fixedDeltaTime;
             
-            float speedMult = _isGrounded ? .6f : 1f;
+            float speedMult = _isGrounded ? 1f : .6f;
             
-
-            if (_inputVec.x > 0)
+            if (_canMove)
             {
-                if (snapshotSpeed.x > _maxHorizontalSpeed) return;
-                
-                snapshotSpeed.x += _horizontalAcceleration * speedMult * _inputVec.x * Time.fixedDeltaTime;
-            } else if (_inputVec.x < 0)
-            {
-                if (snapshotSpeed.x < -_maxHorizontalSpeed) return;
-                
                 snapshotSpeed.x += _horizontalAcceleration * speedMult * _inputVec.x * Time.fixedDeltaTime;
             }
-            
+           
             snapshotSpeed.x = Mathf.Clamp(snapshotSpeed.x, -_maxHorizontalSpeed, _maxHorizontalSpeed);
             
             _rb.velocity = snapshotSpeed;

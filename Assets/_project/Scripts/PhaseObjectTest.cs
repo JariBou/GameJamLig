@@ -1,4 +1,6 @@
-﻿using _project.Scripts.PhaseLogic;
+﻿using System;
+using _project.Scripts.PhaseLogic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 namespace _project.Scripts
@@ -7,20 +9,21 @@ namespace _project.Scripts
     {
         [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private BoxCollider2D _boxCollider2D;
+        [SerializeField] private GameObject _childObject;
+        
         protected override void Phase_Impl()
         {
-            _boxCollider2D.enabled = true;
-            var color = _spriteRenderer.color;
-            color.a = 1;
-            _spriteRenderer.color = color;
+            _childObject.SetActive(true);
         }
 
         protected override void Unphase_Impl()
         {
-            _boxCollider2D.enabled = false;
-            var color = _spriteRenderer.color;
-            color.a = 0;
-            _spriteRenderer.color = color;
+            _childObject.SetActive(false);
+        }
+
+        private void OnValidate()
+        {
+            if (_childObject == null) _childObject = transform.GetChild(0).gameObject;
         }
     }
 }

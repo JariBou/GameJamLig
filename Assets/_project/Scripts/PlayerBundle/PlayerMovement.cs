@@ -100,20 +100,16 @@ namespace _project.Scripts.PlayerBundle
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            Debug.Log("trigger entered");
             if (other.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.Ladder) ?? false)
             {
-                Debug.Log("Component found");
                 _collidesWithLadder = true;
             }
         }
         
         private void OnTriggerExit2D(Collider2D other)
         {
-            Debug.Log("trigger exited");
             if (other.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.Ladder) ?? false)
             {
-                Debug.Log("Component found");
                 _collidesWithLadder = false;
             }
         }

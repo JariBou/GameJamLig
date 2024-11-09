@@ -1,6 +1,4 @@
-﻿using System;
-using _project.Scripts.PhaseLogic;
-using Unity.VisualScripting;
+﻿using _project.Scripts.PhaseLogic;
 using UnityEngine;
 
 namespace _project.Scripts

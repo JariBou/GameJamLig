@@ -2,6 +2,7 @@
 {
     public enum PhaseState
     {
+        None,
         Red,
         Green,
         Blue

@@ -1,3 +1,4 @@
+using System;
 using _project.Scripts.PhaseLogic;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -8,23 +9,12 @@ namespace _project.Scripts.PlayerBundle
     {
         private PlayerMovement _playerMovement;
         private PhaseManager _phaseManager;
+        private PlayerInteractScript _playerInteractScript;
 
         private void Awake()
         {
             _playerMovement = GetComponent<PlayerMovement>();
             _phaseManager = GameObject.FindGameObjectWithTag("PhaseManager").GetComponent<PhaseManager>();
-        }
-
-        // Start is called before the first frame update
-        void Start()
-        {
-        
-        }
-
-        // Update is called once per frame
-        void Update()
-        {
-        
         }
 
         public void Move(InputAction.CallbackContext ctx)
@@ -35,12 +25,25 @@ namespace _project.Scripts.PlayerBundle
 
         public void Jump(InputAction.CallbackContext ctx)
         {
+            if(!ctx.performed) return;
             _playerMovement.Jump();
         }
 
         public void Phase(InputAction.CallbackContext ctx)
         {
+            if(!ctx.performed) return;
             _phaseManager.PhaseTo(_phaseManager.CurrentState == PhaseState.Blue ? PhaseState.Red : PhaseState.Blue);
+        }
+
+        public void Interact(InputAction.CallbackContext ctx)
+        {
+            if (!ctx.performed) return;
+            _playerInteractScript.TryInteract();
+        }
+
+        private void OnValidate()
+        {
+            _playerInteractScript = GetComponentInChildren<PlayerInteractScript>();
         }
     }
 }

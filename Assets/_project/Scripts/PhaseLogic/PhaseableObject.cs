@@ -16,7 +16,7 @@ namespace _project.Scripts.PhaseLogic
             _phaseManager.RegisterObject(this);
             
             IsPhased = true;
-            
+
             Awake_Impl();
         }
         
@@ -32,6 +32,7 @@ namespace _project.Scripts.PhaseLogic
 
         public virtual void PhaseChange(PhaseState newPhaseState)
         {
+            if (PhaseType == PhaseState.None) return;
             if (newPhaseState == PhaseType)
             {
                 PhaseDaddy();

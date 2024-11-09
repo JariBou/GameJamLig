@@ -20,7 +20,8 @@ namespace _project.Scripts.PlayerBundle
             targetPosition.z = transform.position.z;
 
    
-            // TODO improve this shit
+            // TODO improve this shit, this is just too thrash to be left for any longer
+            // STOP DELAYING!
             transform.position = Vector3.Lerp(transform.position, targetPosition, _lerpStrength);
         }
     }

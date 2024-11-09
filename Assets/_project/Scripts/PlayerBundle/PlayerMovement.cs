@@ -141,10 +141,24 @@ namespace _project.Scripts.PlayerBundle
         public void Jump()
         {
             if (!_isGrounded) return;
-            _isGrounded = false;
-            Vector2 vector2 = _rb.velocity;
-            vector2.y = _jumpSpeed;
-            _rb.velocity = vector2;
+
+            // Try Pass Through Platform
+            if (_inputVec.y < -.5f && !_isOnLadder)
+            {
+                _isGrounded = false;
+                PassThroughPlatformScript passThroughScript = _groundDetector.GetGroundComponent<PlatformScript>().GetPassThroughScript();
+
+                passThroughScript.TempDisableCollision();
+            }
+            else
+            {
+                _isGrounded = false;
+                Vector2 vector2 = _rb.velocity;
+                vector2.y = _jumpSpeed;
+                _rb.velocity = vector2;  
+            }
+            
+            
         }
     }
 }

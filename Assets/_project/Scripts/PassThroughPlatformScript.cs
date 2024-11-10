@@ -9,7 +9,6 @@ namespace _project.Scripts
         private bool _playerPassingThrough;
         private void OnTriggerEnter2D(Collider2D other)
         {
-            Debug.Log(other.tag);
             if (other.CompareTag("Player"))
             {
                 _platformCollider.enabled = false;
@@ -19,7 +18,7 @@ namespace _project.Scripts
     
         private void OnTriggerExit2D(Collider2D other)
         {
-            Debug.Log($"Leaving platform {other.tag}");
+            // Debug.Log($"Leaving platform {other.tag}");
             if (other.CompareTag("Player"))
             {
                 _platformCollider.enabled = true;

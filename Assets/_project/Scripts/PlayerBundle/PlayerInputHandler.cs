@@ -9,7 +9,7 @@ namespace _project.Scripts.PlayerBundle
     {
         private PlayerMovement _playerMovement;
         private PhaseManager _phaseManager;
-        private PlayerInteractScript _playerInteractScript;
+        [SerializeField] private PlayerInteractScript _playerInteractScript;
 
         private void Awake()
         {
@@ -39,11 +39,6 @@ namespace _project.Scripts.PlayerBundle
         {
             if (!ctx.performed) return;
             _playerInteractScript.TryInteract();
-        }
-
-        private void OnValidate()
-        {
-            _playerInteractScript = GetComponentInChildren<PlayerInteractScript>();
         }
     }
 }

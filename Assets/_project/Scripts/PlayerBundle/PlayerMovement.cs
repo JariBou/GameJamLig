@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using _project.Scripts.EnvironmentLogic;
 using UnityEngine;
@@ -28,6 +29,7 @@ namespace _project.Scripts.PlayerBundle
         private bool _canMove = true;
         private Vector2 _inputVec;
         private bool _collidesWithLadder;
+        private bool _canClimb = true;
 
         private void Awake()
         {
@@ -45,16 +47,18 @@ namespace _project.Scripts.PlayerBundle
             Vector2 snapshotSpeed = _rb.velocity;
             if (_isOnLadder)
             {
-                snapshotSpeed.x = Math.Abs(snapshotSpeed.x) * (1 - _linearDrag)*3/4 * Math.Sign(snapshotSpeed.x);
+                //snapshotSpeed.x = Math.Abs(snapshotSpeed.x) * (1 - _linearDrag)*3/4 * Math.Sign(snapshotSpeed.x);
+                snapshotSpeed.x += Math.Abs(snapshotSpeed.x) * -_linearDrag*4 * Math.Sign(snapshotSpeed.x);
             } else
             {
-                snapshotSpeed.x = Math.Abs(snapshotSpeed.x) * (1 - _linearDrag) * Math.Sign(snapshotSpeed.x);
+                //snapshotSpeed.x = Math.Abs(snapshotSpeed.x) * (1 - _linearDrag) * Math.Sign(snapshotSpeed.x);
+                snapshotSpeed.x += Math.Abs(snapshotSpeed.x) * -_linearDrag * Math.Sign(snapshotSpeed.x);
             }
             
             LadderCheck(ref snapshotSpeed);
             if (!_isGrounded && !_isOnLadder) snapshotSpeed.y -= _gravityStrength * Time.fixedDeltaTime;
             
-            float speedMult = _isGrounded ? 1f : .6f;
+            float speedMult = _isGrounded ? 1f : .7f;
             
             if (_canMove)
             {
@@ -68,6 +72,7 @@ namespace _project.Scripts.PlayerBundle
 
         private void LadderCheck(ref Vector2 snapshotSpeed)
         {
+            if (!_canClimb) return;
             if (_isOnLadder && _collidesWithLadder)
             {
                 if (_inputVec.y < 0 && _isGrounded)
@@ -98,6 +103,22 @@ namespace _project.Scripts.PlayerBundle
             }
         }
 
+        // F THIS
+        // private void OnCollisionEnter2D(Collision2D other)
+        // {
+        //     if (other.gameObject.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.StableGround) ?? false)
+        //     {
+        //         // _rb.AddForce(new Vector2(_rb.velocity.y * Math.Sign(_rb.velocity.x) * -50000000000, 0), ForceMode2D.Impulse);
+        //         // _addedVelocity.x += _rb.velocity.y * Math.Sign(_rb.velocity.x) * -50000;
+        //         var vector2 = _rb.velocity;
+        //         vector2.x += Math.Abs(_rb.velocity.y) * Math.Sign(_rb.velocity.x);
+        //         vector2.x = Mathf.Clamp(vector2.x, -_maxHorizontalSpeed, _maxHorizontalSpeed);
+        //         vector2.y = 0;
+        //         Debug.Log(vector2);
+        //         _rb.velocity = vector2;
+        //     }
+        // }
+
         private void OnTriggerEnter2D(Collider2D other)
         {
             if (other.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.Ladder) ?? false)
@@ -114,23 +135,23 @@ namespace _project.Scripts.PlayerBundle
             }
         }
 
-        private void CheckForLadder()
-        {
-            if (!_isOnLadder & Math.Abs(_inputVec.y) > 0)
-            {
-                List<Collider2D> results = new List<Collider2D>();
-                _bodyCollider.OverlapCollider(new ContactFilter2D().NoFilter(), results);
-                
-                foreach (Collider2D col in results)
-                {
-                    if (col.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.Ladder) ?? false)
-                    {
-                        _isGrounded = true;
-                        break;
-                    }
-                }
-            }
-        }
+        // private void CheckForLadder()
+        // {
+        //     if (!_isOnLadder & Math.Abs(_inputVec.y) > 0)
+        //     {
+        //         List<Collider2D> results = new List<Collider2D>();
+        //         _bodyCollider.OverlapCollider(new ContactFilter2D().NoFilter(), results);
+        //         
+        //         foreach (Collider2D col in results)
+        //         {
+        //             if (col.GetComponent<EnvironmentObject>()?.IsOfType(EnvironmentType.Ladder) ?? false)
+        //             {
+        //                 _isGrounded = true;
+        //                 break;
+        //             }
+        //         }
+        //     }
+        // }
 
         private void OnValidate()
         {
@@ -140,6 +161,12 @@ namespace _project.Scripts.PlayerBundle
 
         public void Jump()
         {
+            if (_isOnLadder)
+            {
+                StartCoroutine(TempDisableLadderClimbing());
+                DoJump();
+            }
+            
             if (!_isGrounded) return;
 
             // Try Pass Through Platform
@@ -152,13 +179,24 @@ namespace _project.Scripts.PlayerBundle
             }
             else
             {
-                _isGrounded = false;
-                Vector2 vector2 = _rb.velocity;
-                vector2.y = _jumpSpeed;
-                _rb.velocity = vector2;  
+                DoJump();
             }
-            
-            
+        }
+
+        private void DoJump()
+        {
+            _isOnLadder = false;
+            _isGrounded = false;
+            Vector2 vector2 = _rb.velocity;
+            vector2.y = _jumpSpeed;
+            _rb.velocity = vector2;  
+        }
+
+        private IEnumerator TempDisableLadderClimbing()
+        {
+            _canClimb = false;
+            yield return new WaitForSeconds(0.5f);
+            _canClimb = true;
         }
     }
 }

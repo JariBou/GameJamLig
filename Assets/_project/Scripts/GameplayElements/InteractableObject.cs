@@ -1,6 +1,6 @@
 ﻿using _project.Scripts.PlayerBundle;
 
-namespace _project.Scripts
+namespace _project.Scripts.GameplayElements
 {
     public interface IInteractableObject
     {

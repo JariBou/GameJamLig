@@ -1,33 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using _project.Scripts.GameplayElements;
 using UnityEngine;
 
 namespace _project.Scripts.PlayerBundle
 {
     public class PlayerInteractScript : MonoBehaviour
     {
-        private Collider2D _collider;
-        private Player _player;
+        [SerializeField, HideInInspector]private Player _player;
+        [SerializeField] private LayerMask _interactableLayerMask;
+        [SerializeField] private Vector2 _interactionBoxSize;
 
-        private void Awake()
+        public void TryInteract()
+        {
+            // List<Collider2D> results = new List<Collider2D>();
+            // ContactFilter2D contactFilter2D = new ContactFilter2D().NoFilter();
+            // // contactFilter2D.layerMask = LayerMask.GetMask("Interactables");
+            // // contactFilter2D.useLayerMask = true;
+            // _collider.GetContacts(contactFilter2D, results);
+
+            
+             Collider2D[] results = Physics2D.OverlapBoxAll(_player.transform.position, _interactionBoxSize, 0, _interactableLayerMask);
+
+             foreach (Collider2D result in results)
+             {
+                 IInteractableObject interactableObject = result.GetComponent<IInteractableObject>();
+                 if (interactableObject != null)
+                 {
+                     interactableObject.Interact(_player);
+                     return;
+                 }
+             }
+        }
+
+        private void OnValidate()
         {
             _player = GetComponentInParent<Player>();
         }
 
-        public void TryInteract()
+        private void OnDrawGizmosSelected()
         {
-            List<Collider2D> results = new List<Collider2D>();
-            _collider.GetContacts(new ContactFilter2D().NoFilter(), results);
-
-            foreach (Collider2D result in results)
-            {
-                IInteractableObject interactableObject = result.GetComponent<IInteractableObject>();
-                if (interactableObject != null)
-                {
-                    interactableObject.Interact(_player);
-                    return;
-                }
-            }
+            Gizmos.color = Color.red;
+            Gizmos.DrawWireCube(_player.transform.position, _interactionBoxSize);
         }
     }
 }

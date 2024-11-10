@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using _project.Scripts.EnvironmentLogic;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -19,6 +18,7 @@ namespace _project.Scripts.PlayerBundle
 
         [SerializeField] private GroundDetector _groundDetector;
         [SerializeField] private Collider2D _bodyCollider;
+        [SerializeField] private PlayerAnimationScript _playerAnimationScript;
         
         // If set to false this fuck up when detection happens when jumping so might go to a OnTriggerOverlap thing on a separate script maybe
         [SerializeField] private bool _fallingRemovesJump = true; 
@@ -31,6 +31,13 @@ namespace _project.Scripts.PlayerBundle
         private bool _collidesWithLadder;
         private bool _canClimb = true;
 
+        public Vector2 InputVec => _inputVec;
+        public bool IsOnLadder => _isOnLadder;
+
+        public event Action<Vector2> InputVecChanged;
+        public event Action JumpEvent;
+        public event Action<Vector2> VelocityChanged;
+
         private void Awake()
         {
             _rb = GetComponent<Rigidbody2D>();
@@ -39,6 +46,7 @@ namespace _project.Scripts.PlayerBundle
         public void PassInputVec(Vector2 inputVec)
         {
             _inputVec = inputVec;
+            InputVecChanged?.Invoke(inputVec);
         }
 
         private void FixedUpdate()
@@ -68,6 +76,7 @@ namespace _project.Scripts.PlayerBundle
             snapshotSpeed.x = Mathf.Clamp(snapshotSpeed.x, -_maxHorizontalSpeed, _maxHorizontalSpeed);
             
             _rb.velocity = snapshotSpeed;
+            VelocityChanged?.Invoke(snapshotSpeed);
         }
 
         private void LadderCheck(ref Vector2 snapshotSpeed)
@@ -190,6 +199,7 @@ namespace _project.Scripts.PlayerBundle
             Vector2 vector2 = _rb.velocity;
             vector2.y = _jumpSpeed;
             _rb.velocity = vector2;  
+            JumpEvent?.Invoke();
         }
 
         private IEnumerator TempDisableLadderClimbing()

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using _project.Scripts.GameplayElements;
+﻿using _project.Scripts.GameplayElements;
 using UnityEngine;
 
 namespace _project.Scripts.PlayerBundle

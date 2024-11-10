@@ -552,6 +552,7 @@ MonoBehaviour:
   _gravityStrength: 9.8
   _groundDetector: {fileID: 665461597}
   _bodyCollider: {fileID: 342691396}
+  _playerAnimationScript: {fileID: 0}
   _fallingRemovesJump: 1
 --- !u!114 &342691404
 MonoBehaviour:
